@@ -1,0 +1,18 @@
+{
+ "batch": "drill-batch-1",
+ "files": [
+  {
+   "name": "e3.json",
+   "sha256": "359745a11857d76a5b7d4ac2060978ea1ce1f66b53c8c189a83b5bb05e535b96"
+  },
+  {
+   "name": "e1.json",
+   "sha256": "d4b30e42eaa579d5f35e583f83a5bb901624cf1a4114f966fd6248e9dc77a92a"
+  },
+  {
+   "name": "e2.json",
+   "sha256": "5bf320bb93baef1efb2f7a694c8a9ba1a8b9622ff0f02faf2b3e99a238c02c33"
+  }
+ ],
+ "lineage_links": []
+}

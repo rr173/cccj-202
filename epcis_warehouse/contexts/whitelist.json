@@ -1,0 +1,7 @@
+{
+  "comment": "Explicit IRI whitelist for the offline JSON-LD document loader. Any context IRI not listed here makes the referencing event uninterpretable; no network fetch is ever attempted.",
+  "contexts": {
+    "urn:example:ctx:epcis": "epcis.jsonld",
+    "https://ref.gs1.org/standards/epcis/epcis-context.jsonld": "epcis.jsonld"
+  }
+}

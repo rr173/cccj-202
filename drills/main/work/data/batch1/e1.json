@@ -1,0 +1,23 @@
+{
+ "@context": "urn:example:ctx:epcis",
+ "type": "AggregationEvent",
+ "eventID": "urn:uuid:drill-e1",
+ "eventTime": "2026-01-01T10:00:00+00:00",
+ "recordTime": "2026-01-01T10:00:03+00:00",
+ "action": "ADD",
+ "parentID": "urn:example:epc:B",
+ "childEPCs": [
+  "urn:example:epc:A",
+  "urn:example:epc:O1"
+ ],
+ "sourceList": [
+  {
+   "source": "urn:example:loc:packing"
+  }
+ ],
+ "destinationList": [
+  {
+   "destination": "urn:example:loc:warehouse"
+  }
+ ]
+}

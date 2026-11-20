@@ -1,0 +1,227 @@
+{
+  "description": "Main drill expectations, written by hand from the business timeline. The independent verifier compares these against actual CLI query output; it never computes expectations via the warehouse rebuild functions.",
+  "checks": [
+    {
+      "name": "A-in-B-at-10:30-batch1",
+      "argv": ["query", "ancestors", "--epc", "urn:example:epc:A", "--t", "2026-01-01T10:30:00+00:00", "--batch", "1"],
+      "expect": {
+        "status": "complete",
+        "chain": [
+          {"child": "urn:example:epc:A", "parent": "urn:example:epc:B",
+           "since": "2026-01-01T10:00:00+00:00", "by_event": "urn:uuid:drill-e1"}
+        ]
+      },
+      "expect_events": ["urn:uuid:drill-e1"]
+    },
+    {
+      "name": "A-not-in-B-at-11:30-batch1",
+      "comment": "the key drill assertion: at 11:30 A must no longer be inside B",
+      "argv": ["query", "ancestors", "--epc", "urn:example:epc:A", "--t", "2026-01-01T11:30:00+00:00", "--batch", "1"],
+      "expect": {"status": "complete", "chain": []},
+      "expect_events": []
+    },
+    {
+      "name": "A-nowhere-at-09:30-batch1",
+      "argv": ["query", "ancestors", "--epc", "urn:example:epc:A", "--t", "2026-01-01T09:30:00+00:00", "--batch", "1"],
+      "expect": {"status": "complete", "chain": []},
+      "expect_events": []
+    },
+    {
+      "name": "A-in-B0-at-09:30-batch2",
+      "comment": "the late 09:00 event changes batch 2's view of an old business moment",
+      "argv": ["query", "ancestors", "--epc", "urn:example:epc:A", "--t", "2026-01-01T09:30:00+00:00", "--batch", "2"],
+      "expect": {
+        "status": "complete",
+        "chain": [
+          {"child": "urn:example:epc:A", "parent": "urn:example:epc:B0",
+           "since": "2026-01-01T09:00:00+00:00", "by_event": "urn:uuid:drill-e0"}
+        ]
+      },
+      "expect_events": ["urn:uuid:drill-e0"]
+    },
+    {
+      "name": "A-moved-to-B-at-10:30-batch2",
+      "argv": ["query", "ancestors", "--epc", "urn:example:epc:A", "--t", "2026-01-01T10:30:00+00:00", "--batch", "2"],
+      "expect": {
+        "status": "complete",
+        "chain": [
+          {"child": "urn:example:epc:A", "parent": "urn:example:epc:B",
+           "since": "2026-01-01T10:00:00+00:00", "by_event": "urn:uuid:drill-e1"}
+        ]
+      },
+      "expect_events": ["urn:uuid:drill-e1"]
+    },
+    {
+      "name": "B-children-at-10:30-batch1",
+      "argv": ["query", "children", "--parent", "urn:example:epc:B", "--t", "2026-01-01T10:30:00+00:00", "--batch", "1"],
+      "expect": {
+        "status": "ok",
+        "named_children": [
+          {"epc": "urn:example:epc:A", "since": "2026-01-01T10:00:00+00:00", "by_event": "urn:uuid:drill-e1"},
+          {"epc": "urn:example:epc:O1", "since": "2026-01-01T10:00:00+00:00", "by_event": "urn:uuid:drill-e1"}
+        ]
+      },
+      "expect_events": ["urn:uuid:drill-e1"]
+    },
+    {
+      "name": "B-children-at-11:30-batch1",
+      "comment": "A removed; O1 untouched",
+      "argv": ["query", "children", "--parent", "urn:example:epc:B", "--t", "2026-01-01T11:30:00+00:00", "--batch", "1"],
+      "expect": {
+        "status": "ok",
+        "named_children": [
+          {"epc": "urn:example:epc:O1", "since": "2026-01-01T10:00:00+00:00", "by_event": "urn:uuid:drill-e1"}
+        ]
+      },
+      "expect_events": ["urn:uuid:drill-e1"]
+    },
+    {
+      "name": "B0-children-at-09:30-batch2",
+      "argv": ["query", "children", "--parent", "urn:example:epc:B0", "--t", "2026-01-01T09:30:00+00:00", "--batch", "2"],
+      "expect": {
+        "status": "ok",
+        "named_children": [
+          {"epc": "urn:example:epc:A", "since": "2026-01-01T09:00:00+00:00", "by_event": "urn:uuid:drill-e0"}
+        ]
+      },
+      "expect_events": ["urn:uuid:drill-e0"]
+    },
+    {
+      "name": "B0-empty-at-10:30-batch2",
+      "comment": "A moved on to B at 10:00",
+      "argv": ["query", "children", "--parent", "urn:example:epc:B0", "--t", "2026-01-01T10:30:00+00:00", "--batch", "2"],
+      "expect": {"status": "ok", "named_children": []},
+      "expect_events": []
+    },
+    {
+      "name": "trace-C-batch1",
+      "comment": "C's sources must list A and X, with no share of either allocated to C",
+      "argv": ["query", "trace", "--item", "urn:example:epc:C", "--t", "2026-01-01T12:30:00+00:00", "--batch", "1"],
+      "expect": {
+        "status": "ok",
+        "produced_by": [
+          {"event": "urn:uuid:drill-e3", "list": "outputEPCList", "index": 0}
+        ],
+        "consumed_by": [],
+        "cycles": [],
+        "nodes": {
+          "urn:uuid:drill-e3": {
+            "event_time": "2026-01-01T12:00:00+00:00",
+            "inputs": [
+              {"item": {"kind": "epc", "id": "urn:example:epc:A"},
+               "allocation": "not_declared",
+               "lineage": {"status": "missing_evidence"}},
+              {"item": {"kind": "class", "id": "urn:example:class:X",
+                        "quantity": "5", "declared": 5, "uom": "KGM", "base_quantity": "5",
+                        "base_unit": "KGM", "dimension": "mass"},
+               "allocation": "not_declared",
+               "lineage": {"status": "missing_evidence"}}
+            ],
+            "outputs": [
+              {"kind": "epc", "id": "urn:example:epc:C",
+               "list": "outputEPCList", "index": 0},
+              {"kind": "class", "id": "urn:example:class:D",
+               "quantity": "24/5", "declared": 4.8, "uom": "KGM", "base_quantity": "24/5",
+               "base_unit": "KGM", "dimension": "mass",
+               "list": "outputQuantityList", "index": 0}
+            ],
+            "stats": {
+              "mass": {"input_total": "5", "output_total": "24/5",
+                       "difference": "1/5", "base_unit": "KGM"}
+            }
+          }
+        }
+      },
+      "expect_events": ["urn:uuid:drill-e3"],
+      "expect_evidence_contains": {
+        "event": "urn:uuid:drill-e3",
+        "raw_contains": "inputQuantityList",
+        "expanded_contains": "https://ns.gs1.org/epcis/inputQuantityList"
+      }
+    },
+    {
+      "name": "trace-class-D-batch1",
+      "argv": ["query", "trace", "--item", "class:urn:example:class:D", "--t", "2026-01-01T12:30:00+00:00", "--batch", "1"],
+      "expect": {
+        "status": "ok",
+        "produced_by": [
+          {"event": "urn:uuid:drill-e3", "list": "outputQuantityList", "index": 0}
+        ],
+        "nodes": {
+          "urn:uuid:drill-e3": {
+            "inputs": [
+              {"allocation": "not_declared"},
+              {"allocation": "not_declared"}
+            ]
+          }
+        }
+      },
+      "expect_events": ["urn:uuid:drill-e3"]
+    },
+    {
+      "name": "trace-A-batch1",
+      "comment": "A participates as input of T; nothing produces A",
+      "argv": ["query", "trace", "--item", "urn:example:epc:A", "--t", "2026-01-01T12:30:00+00:00", "--batch", "1"],
+      "expect": {
+        "status": "ok",
+        "produced_by": [],
+        "consumed_by": [
+          {"event": "urn:uuid:drill-e3", "list": "inputEPCList", "index": 0,
+           "allocation": "not_declared", "declared_upstream_link": null}
+        ]
+      },
+      "expect_events": ["urn:uuid:drill-e3"]
+    },
+    {
+      "name": "trace-O1-batch1",
+      "comment": "other members of B are not implicated as inputs of T",
+      "argv": ["query", "trace", "--item", "urn:example:epc:O1", "--t", "2026-01-01T12:30:00+00:00", "--batch", "1"],
+      "expect": {"status": "ok", "produced_by": [], "consumed_by": [], "nodes": {}},
+      "expect_events": []
+    },
+    {
+      "name": "B-children-at-12:30-batch1",
+      "comment": "O1 stays in B through the transformation; packaging is not consumption",
+      "argv": ["query", "children", "--parent", "urn:example:epc:B", "--t", "2026-01-01T12:30:00+00:00", "--batch", "1"],
+      "expect": {
+        "status": "ok",
+        "named_children": [
+          {"epc": "urn:example:epc:O1", "since": "2026-01-01T10:00:00+00:00", "by_event": "urn:uuid:drill-e1"}
+        ]
+      },
+      "expect_events": ["urn:uuid:drill-e1"]
+    },
+    {
+      "name": "event-e3-declared-quantities",
+      "comment": "per-event declared quantities and members, exactly as recorded",
+      "argv": ["event", "--id", "urn:uuid:drill-e3"],
+      "expect": {
+        "status": "ok",
+        "conflicted_in_batches": [],
+        "versions": [
+          {"status": "ok",
+           "event_time": "2026-01-01T12:00:00+00:00",
+           "record_time": "2026-01-01T12:00:04+00:00",
+           "first_batch": 1,
+           "declared": {
+             "etype": "TransformationEvent",
+             "inputs": [
+               {"kind": "epc", "id": "urn:example:epc:A",
+                "list": "inputEPCList", "index": 0},
+               {"kind": "class", "id": "urn:example:class:X",
+                "quantity": "5", "declared": 5, "uom": "KGM", "base_quantity": "5",
+                "list": "inputQuantityList", "index": 0}
+             ],
+             "outputs": [
+               {"kind": "epc", "id": "urn:example:epc:C",
+                "list": "outputEPCList", "index": 0},
+               {"kind": "class", "id": "urn:example:class:D",
+                "quantity": "24/5", "declared": 4.8, "uom": "KGM", "base_quantity": "24/5",
+                "list": "outputQuantityList", "index": 0}
+             ]
+           }}
+        ]
+      }
+    }
+  ]
+}

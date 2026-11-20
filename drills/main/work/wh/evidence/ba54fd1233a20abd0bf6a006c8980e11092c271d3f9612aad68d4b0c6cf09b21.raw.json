@@ -1,0 +1,1 @@
+{"@context":"urn:example:ctx:epcis","action":"ADD","childEPCs":["urn:example:epc:A"],"destinationList":[{"destination":"urn:example:loc:warehouse"}],"eventID":"urn:uuid:drill-e0","eventTime":"2026-01-01T09:00:00+00:00","parentID":"urn:example:epc:B0","recordTime":"2026-01-02T09:00:00+00:00","sourceList":[{"source":"urn:example:loc:packing"}],"type":"AggregationEvent"}

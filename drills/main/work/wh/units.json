@@ -1,0 +1,16 @@
+{
+ "units": {
+  "KGM": {
+   "dimension": "mass",
+   "factor": "1"
+  },
+  "GRM": {
+   "dimension": "mass",
+   "factor": "1/1000"
+  },
+  "EA": {
+   "dimension": "count",
+   "factor": "1"
+  }
+ }
+}

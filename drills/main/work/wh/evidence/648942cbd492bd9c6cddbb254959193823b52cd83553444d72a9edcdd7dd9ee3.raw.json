@@ -1,0 +1,1 @@
+{"@context":"urn:example:ctx:epcis","action":"DELETE","childEPCs":["urn:example:epc:A"],"destinationList":[{"destination":"urn:example:loc:warehouse"}],"eventID":"urn:uuid:drill-e2","eventTime":"2026-01-01T11:00:00+00:00","parentID":"urn:example:epc:B","recordTime":"2026-01-01T11:00:02+00:00","sourceList":[{"source":"urn:example:loc:packing"}],"type":"AggregationEvent"}
