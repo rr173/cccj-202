@@ -1,0 +1,1 @@
+{"@context":"urn:example:ctx:epcis","action":"OBSERVE","destinationList":[{"destination":"urn:example:loc:B"}],"epcList":["urn:example:epc:e2"],"eventID":"urn:uuid:drill-r14","eventTime":"2026-01-01T09:51:00+00:00","recordTime":"2026-01-01T09:51:00+00:00","sourceList":[{"source":"urn:example:loc:A"}],"type":"ObjectEvent"}

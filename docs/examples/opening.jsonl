@@ -1,0 +1,3 @@
+{"type": "opening", "as_of": "2026-01-01T08:00:00+00:00"}
+{"type": "quantity", "location": "urn:example:loc:A", "class": "urn:example:class:X", "quantity": "10", "uom": "KGM"}
+{"type": "epc", "epc": "urn:example:epc:e1", "location": "urn:example:loc:A"}

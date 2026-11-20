@@ -1,0 +1,8 @@
+# Python
+__pycache__/
+*.pyc
+
+# Scale-reproduction artifacts are generated at runtime into temp dirs and
+# must never be committed (see scripts/settle_scale.py --keep --work).
+epcis-settle-scale-*/
+settle-out/

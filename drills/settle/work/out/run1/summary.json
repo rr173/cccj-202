@@ -1,0 +1,27 @@
+{
+  "counts": {
+    "failed": 11,
+    "groups_blocked": 3,
+    "groups_posted": 3,
+    "handovers": 14,
+    "posted": 3,
+    "receiver_distinct": 13,
+    "receiver_lines": 13,
+    "sender_distinct": 14,
+    "sender_lines": 14
+  },
+  "inputs": {
+    "batch": 1,
+    "opening": "/workspace/drills/settle/work/inputs/opening.jsonl",
+    "opening_as_of": "2026-01-01T08:00:00+00:00",
+    "receiver": "/workspace/drills/settle/work/inputs/receiver1.jsonl",
+    "sender": "/workspace/drills/settle/work/inputs/sender1.jsonl"
+  },
+  "outputs": {
+    "balances": "balances.jsonl",
+    "documents": "documents.jsonl",
+    "groups": "groups.jsonl",
+    "ledger": "ledger.jsonl"
+  },
+  "status": "settled"
+}

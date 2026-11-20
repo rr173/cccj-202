@@ -1,0 +1,8 @@
+{"type": "opening", "as_of": "2026-01-01T08:00:00+00:00"}
+{"type": "quantity", "location": "urn:example:loc:A", "class": "urn:example:class:X", "quantity": "10", "uom": "KGM"}
+{"type": "quantity", "location": "urn:example:loc:A", "class": "urn:example:class:Y", "quantity": "8", "uom": "KGM"}
+{"type": "quantity", "location": "urn:example:loc:A", "class": "urn:example:class:Z", "quantity": "10", "uom": "KGM"}
+{"type": "quantity", "location": "urn:example:loc:A", "class": "urn:example:class:W", "quantity": "1", "uom": "KGM"}
+{"type": "quantity", "location": "urn:example:loc:C", "class": "urn:example:class:W", "quantity": "10", "uom": "KGM"}
+{"type": "epc", "epc": "urn:example:epc:e1", "location": "urn:example:loc:A"}
+{"type": "epc", "epc": "urn:example:epc:e2", "location": "urn:example:loc:A"}

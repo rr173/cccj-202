@@ -1,0 +1,21 @@
+{
+ "@context": "urn:example:ctx:epcis",
+ "type": "ObjectEvent",
+ "eventID": "urn:uuid:drill-s12",
+ "eventTime": "2026-01-01T09:31:00+00:00",
+ "recordTime": "2026-01-01T09:31:00+00:00",
+ "action": "OBSERVE",
+ "sourceList": [
+  {
+   "source": "urn:example:loc:A"
+  }
+ ],
+ "destinationList": [
+  {
+   "destination": "urn:example:loc:C"
+  }
+ ],
+ "epcList": [
+  "urn:example:epc:e1"
+ ]
+}

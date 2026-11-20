@@ -104,3 +104,14 @@ class Warehouse:
 
     def evidence_doc(self, digest):
         return self.evidence.get(digest)
+
+    # ---------------------------------------------------------- settlement
+    def settle(self, batch, opening_path, sender_path, receiver_path, out_dir):
+        """Close one round of handover documents against a published batch.
+
+        Read-only for the warehouse itself; results land in out_dir.
+        Returns (summary_dict, exit_code).
+        """
+        from . import settle as S
+        return S.run_settlement(self.store, self.units, batch,
+                                opening_path, sender_path, receiver_path, out_dir)

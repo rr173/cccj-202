@@ -1,0 +1,25 @@
+{
+ "@context": "urn:example:ctx:epcis",
+ "type": "ObjectEvent",
+ "eventID": "urn:uuid:drill-r7",
+ "eventTime": "2026-01-01T09:46:00+00:00",
+ "recordTime": "2026-01-01T09:46:00+00:00",
+ "action": "OBSERVE",
+ "sourceList": [
+  {
+   "source": "urn:example:loc:A"
+  }
+ ],
+ "destinationList": [
+  {
+   "destination": "urn:example:loc:C"
+  }
+ ],
+ "quantityList": [
+  {
+   "epcClass": "urn:example:class:Z",
+   "quantity": 1,
+   "uom": "KGM"
+  }
+ ]
+}

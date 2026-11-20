@@ -1,0 +1,14 @@
+{"handover": "H1", "from": "urn:example:loc:A", "to": "urn:example:loc:B", "effective": "2026-01-01T10:00:00+00:00", "scans": ["urn:uuid:drill-s1a", "urn:uuid:drill-s1b"]}
+{"handover": "H2", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T10:00:00+00:00", "scans": ["urn:uuid:drill-s2"]}
+{"handover": "H3", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T10:00:00+00:00", "scans": ["urn:uuid:drill-s3"]}
+{"handover": "H4", "from": "urn:example:loc:C", "to": "urn:example:loc:B", "effective": "2026-01-01T10:00:00+00:00", "scans": ["urn:uuid:drill-s4a", "urn:uuid:drill-s4b"]}
+{"handover": "H5", "from": "urn:example:loc:A", "to": "urn:example:loc:B", "effective": "2026-01-01T11:00:00+00:00", "scans": ["urn:uuid:drill-s5"]}
+{"handover": "H7", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-s7"]}
+{"handover": "H8", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-s7"]}
+{"handover": "H9", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-s9"]}
+{"handover": "H10", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-s10"]}
+{"handover": "H11", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-s11"]}
+{"handover": "H12", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-s12"]}
+{"handover": "H13", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-s13"]}
+{"handover": "H14", "from": "urn:example:loc:A", "to": "urn:example:loc:B", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-s14"]}
+{"handover": "H6", "from": "urn:example:loc:B", "to": "urn:example:loc:C", "effective": "2026-01-01T11:00:00+00:00", "scans": ["urn:uuid:drill-s6"]}

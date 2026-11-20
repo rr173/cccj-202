@@ -1,0 +1,6 @@
+{"blocking":{"epcs":[],"quantities":[{"available":"10","base_unit":"KGM","class":"urn:example:class:X","dimension":"mass","location":"urn:example:loc:A","required":"11"}]},"effective":"2026-01-01T10:00:00+00:00","group":"2026-01-01T10:00:00+00:00#1","member_count":3,"status":"blocked"}
+{"effective":"2026-01-01T10:00:00+00:00","group":"2026-01-01T10:00:00+00:00#2","member_count":1,"status":"posted"}
+{"effective":"2026-01-01T11:00:00+00:00","group":"2026-01-01T11:00:00+00:00#1","member_count":1,"status":"posted"}
+{"effective":"2026-01-01T12:00:00+00:00","group":"2026-01-01T12:00:00+00:00#1","member_count":1,"status":"posted"}
+{"effective":"2026-01-01T13:00:00+00:00","group":"2026-01-01T13:00:00+00:00#1","member_count":1,"status":"posted"}
+{"blocking":{"epcs":[{"documents":["H13","H14"],"epc":"urn:example:epc:e2","reason":"transferred_twice_in_group"}],"quantities":[]},"effective":"2026-01-01T13:00:00+00:00","group":"2026-01-01T13:00:00+00:00#2","member_count":2,"status":"blocked"}

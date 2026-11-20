@@ -1,0 +1,165 @@
+{
+  "comment": "Hand-written reconciliation for the settlement drill.  Balances are computed by hand from the opening inventory and the handovers that must post; the verifier compares them against the CLI output files without calling any warehouse function.",
+  "locations": {"A": "urn:example:loc:A", "B": "urn:example:loc:B", "C": "urn:example:loc:C"},
+  "runs": {
+    "run1": {
+      "counts": {"handovers": 14, "posted": 3, "failed": 11, "groups_posted": 3, "groups_blocked": 3},
+      "documents": {
+        "H1": ["group_blocked"], "H2": ["group_blocked"], "H3": ["group_blocked"],
+        "H4": [],
+        "H5": ["group_blocked"], "H6": ["group_blocked"],
+        "H7": ["scan_reused"], "H8": ["scan_reused"],
+        "H9": ["missing_receiver"],
+        "H10": ["evidence_missing"],
+        "H11": [], "H12": [],
+        "H13": ["group_blocked"], "H14": ["group_blocked"]
+      },
+      "groups": {
+        "2026-01-01T10:00:00+00:00#1": {"status": "blocked", "member_count": 3,
+          "blocking_quantities": [{"location": "urn:example:loc:A", "class": "urn:example:class:X", "dimension": "mass", "required": "11", "available": "10"}]},
+        "2026-01-01T10:00:00+00:00#2": {"status": "posted", "member_count": 1},
+        "2026-01-01T11:00:00+00:00#1": {"status": "blocked", "member_count": 2,
+          "blocking_quantities": [{"location": "urn:example:loc:B", "class": "urn:example:class:X", "dimension": "mass", "required": "6", "available": "0"}]},
+        "2026-01-01T13:00:00+00:00#1": {"status": "posted", "member_count": 1},
+        "2026-01-01T13:00:00+00:00#2": {"status": "posted", "member_count": 1},
+        "2026-01-01T13:00:00+00:00#3": {"status": "blocked", "member_count": 2,
+          "blocking_epcs": [{"epc": "urn:example:epc:e2", "reason": "transferred_twice_in_group", "documents": ["H13", "H14"]}]}
+      },
+      "ledger": {
+        "H4": {"from": "urn:example:loc:C", "to": "urn:example:loc:B",
+               "quantities": [{"class": "urn:example:class:W", "quantity": "6"}],
+               "named": [], "sender_scans": ["urn:uuid:drill-s4a", "urn:uuid:drill-s4b"],
+               "receiver_scans": ["urn:uuid:drill-r4"]},
+        "H11": {"from": "urn:example:loc:A", "to": "urn:example:loc:C",
+                "quantities": [{"class": "urn:example:class:W", "quantity": "1"}],
+                "named": [], "sender_scans": ["urn:uuid:drill-s11"],
+                "receiver_scans": ["urn:uuid:drill-r11"]},
+        "H12": {"from": "urn:example:loc:A", "to": "urn:example:loc:C",
+                "quantities": [], "named": ["urn:example:epc:e1"],
+                "sender_scans": ["urn:uuid:drill-s12"], "receiver_scans": ["urn:uuid:drill-r12"]}
+      },
+      "balances": {
+        "epc": {"urn:example:epc:e1": "urn:example:loc:C", "urn:example:epc:e2": "urn:example:loc:A"},
+        "quantity": {
+          "urn:example:loc:A|urn:example:class:X|mass": "10",
+          "urn:example:loc:A|urn:example:class:Y|mass": "8",
+          "urn:example:loc:A|urn:example:class:Z|mass": "10",
+          "urn:example:loc:A|urn:example:class:W|mass": "0",
+          "urn:example:loc:B|urn:example:class:W|mass": "6",
+          "urn:example:loc:C|urn:example:class:W|mass": "5"
+        }
+      }
+    },
+    "run2": {
+      "counts": {"handovers": 14, "posted": 5, "failed": 9, "groups_posted": 5, "groups_blocked": 2},
+      "documents": {
+        "H1": ["group_blocked"], "H2": ["group_blocked"], "H3": ["group_blocked"],
+        "H4": [], "H5": [], "H6": [],
+        "H7": ["scan_reused"], "H8": ["scan_reused"],
+        "H9": ["missing_receiver"],
+        "H10": ["evidence_missing"],
+        "H11": [], "H12": [],
+        "H13": ["group_blocked"], "H14": ["group_blocked"]
+      },
+      "groups": {
+        "2026-01-01T10:00:00+00:00#1": {"status": "blocked", "member_count": 3,
+          "blocking_quantities": [{"location": "urn:example:loc:A", "class": "urn:example:class:X", "dimension": "mass", "required": "11", "available": "10"}]},
+        "2026-01-01T10:00:00+00:00#2": {"status": "posted", "member_count": 1},
+        "2026-01-01T11:00:00+00:00#1": {"status": "posted", "member_count": 1},
+        "2026-01-01T12:00:00+00:00#1": {"status": "posted", "member_count": 1},
+        "2026-01-01T13:00:00+00:00#1": {"status": "posted", "member_count": 1},
+        "2026-01-01T13:00:00+00:00#2": {"status": "posted", "member_count": 1},
+        "2026-01-01T13:00:00+00:00#3": {"status": "blocked", "member_count": 2,
+          "blocking_epcs": [{"epc": "urn:example:epc:e2", "reason": "transferred_twice_in_group", "documents": ["H13", "H14"]}]}
+      },
+      "ledger": {
+        "H4": {"from": "urn:example:loc:C", "to": "urn:example:loc:B",
+               "quantities": [{"class": "urn:example:class:W", "quantity": "6"}],
+               "named": [], "sender_scans": ["urn:uuid:drill-s4a", "urn:uuid:drill-s4b"],
+               "receiver_scans": ["urn:uuid:drill-r4"]},
+        "H5": {"from": "urn:example:loc:A", "to": "urn:example:loc:B",
+               "quantities": [{"class": "urn:example:class:X", "quantity": "6"}],
+               "named": [], "sender_scans": ["urn:uuid:drill-s5"],
+               "receiver_scans": ["urn:uuid:drill-r5"]},
+        "H6": {"from": "urn:example:loc:B", "to": "urn:example:loc:C",
+               "quantities": [{"class": "urn:example:class:X", "quantity": "6"}],
+               "named": [], "sender_scans": ["urn:uuid:drill-s6"],
+               "receiver_scans": ["urn:uuid:drill-r6"]},
+        "H11": {"from": "urn:example:loc:A", "to": "urn:example:loc:C",
+                "quantities": [{"class": "urn:example:class:W", "quantity": "1"}],
+                "named": [], "sender_scans": ["urn:uuid:drill-s11"],
+                "receiver_scans": ["urn:uuid:drill-r11"]},
+        "H12": {"from": "urn:example:loc:A", "to": "urn:example:loc:C",
+                "quantities": [], "named": ["urn:example:epc:e1"],
+                "sender_scans": ["urn:uuid:drill-s12"], "receiver_scans": ["urn:uuid:drill-r12"]}
+      },
+      "balances": {
+        "epc": {"urn:example:epc:e1": "urn:example:loc:C", "urn:example:epc:e2": "urn:example:loc:A"},
+        "quantity": {
+          "urn:example:loc:A|urn:example:class:X|mass": "4",
+          "urn:example:loc:A|urn:example:class:Y|mass": "8",
+          "urn:example:loc:A|urn:example:class:Z|mass": "10",
+          "urn:example:loc:A|urn:example:class:W|mass": "0",
+          "urn:example:loc:B|urn:example:class:X|mass": "0",
+          "urn:example:loc:B|urn:example:class:W|mass": "6",
+          "urn:example:loc:C|urn:example:class:X|mass": "6",
+          "urn:example:loc:C|urn:example:class:W|mass": "5"
+        }
+      }
+    },
+    "run3": {
+      "counts": {"handovers": 14, "posted": 4, "failed": 10, "groups_posted": 4, "groups_blocked": 2},
+      "documents": {
+        "H1": ["group_blocked"], "H2": ["group_blocked"], "H3": ["group_blocked"],
+        "H4": [], "H5": [], "H6": [],
+        "H7": ["scan_reused"], "H8": ["scan_reused"],
+        "H9": ["missing_receiver"],
+        "H10": ["evidence_missing"],
+        "H11": ["evidence_unusable"], "H12": [],
+        "H13": ["group_blocked"], "H14": ["group_blocked"]
+      },
+      "groups": {
+        "2026-01-01T10:00:00+00:00#1": {"status": "blocked", "member_count": 3,
+          "blocking_quantities": [{"location": "urn:example:loc:A", "class": "urn:example:class:X", "dimension": "mass", "required": "11", "available": "10"}]},
+        "2026-01-01T10:00:00+00:00#2": {"status": "posted", "member_count": 1},
+        "2026-01-01T11:00:00+00:00#1": {"status": "posted", "member_count": 1},
+        "2026-01-01T12:00:00+00:00#1": {"status": "posted", "member_count": 1},
+        "2026-01-01T13:00:00+00:00#1": {"status": "posted", "member_count": 1},
+        "2026-01-01T13:00:00+00:00#2": {"status": "blocked", "member_count": 2,
+          "blocking_epcs": [{"epc": "urn:example:epc:e2", "reason": "transferred_twice_in_group", "documents": ["H13", "H14"]}]}
+      },
+      "ledger": {
+        "H4": {"from": "urn:example:loc:C", "to": "urn:example:loc:B",
+               "quantities": [{"class": "urn:example:class:W", "quantity": "6"}],
+               "named": [], "sender_scans": ["urn:uuid:drill-s4a", "urn:uuid:drill-s4b"],
+               "receiver_scans": ["urn:uuid:drill-r4"]},
+        "H5": {"from": "urn:example:loc:A", "to": "urn:example:loc:B",
+               "quantities": [{"class": "urn:example:class:X", "quantity": "6"}],
+               "named": [], "sender_scans": ["urn:uuid:drill-s5"],
+               "receiver_scans": ["urn:uuid:drill-r5"]},
+        "H6": {"from": "urn:example:loc:B", "to": "urn:example:loc:C",
+               "quantities": [{"class": "urn:example:class:X", "quantity": "6"}],
+               "named": [], "sender_scans": ["urn:uuid:drill-s6"],
+               "receiver_scans": ["urn:uuid:drill-r6"]},
+        "H12": {"from": "urn:example:loc:A", "to": "urn:example:loc:C",
+                "quantities": [], "named": ["urn:example:epc:e1"],
+                "sender_scans": ["urn:uuid:drill-s12"], "receiver_scans": ["urn:uuid:drill-r12"]}
+      },
+      "balances": {
+        "epc": {"urn:example:epc:e1": "urn:example:loc:C", "urn:example:epc:e2": "urn:example:loc:A"},
+        "quantity": {
+          "urn:example:loc:A|urn:example:class:X|mass": "4",
+          "urn:example:loc:A|urn:example:class:Y|mass": "8",
+          "urn:example:loc:A|urn:example:class:Z|mass": "10",
+          "urn:example:loc:A|urn:example:class:W|mass": "1",
+          "urn:example:loc:B|urn:example:class:X|mass": "0",
+          "urn:example:loc:B|urn:example:class:W|mass": "6",
+          "urn:example:loc:C|urn:example:class:X|mass": "6",
+          "urn:example:loc:C|urn:example:class:W|mass": "4"
+        }
+      }
+    },
+    "run4": {"$ref": "run2", "comment": "run2 inputs with reversed line order; every result file must be byte-identical to run2"}
+  },
+  "identical_files": [["run2", "run4"]]
+}

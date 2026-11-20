@@ -50,6 +50,14 @@ def main(argv=None):
     p = sub.add_parser("evidence")
     p.add_argument("--digest", required=True)
 
+    p = sub.add_parser("settle")
+    p.add_argument("--batch", required=True,
+                   help="published receiving batch number, or 'latest'")
+    p.add_argument("--opening", required=True, help="opening inventory JSONL")
+    p.add_argument("--sender", required=True, help="sender-side documents JSONL")
+    p.add_argument("--receiver", required=True, help="receiver-side documents JSONL")
+    p.add_argument("--out", required=True, help="output directory for settlement results")
+
     args = ap.parse_args(argv)
 
     if args.cmd == "init":
@@ -79,6 +87,11 @@ def main(argv=None):
             _emit(wh.review(args.batch))
         elif args.cmd == "evidence":
             _emit(wh.evidence_doc(args.digest))
+        elif args.cmd == "settle":
+            summary, code = wh.settle(args.batch, args.opening, args.sender,
+                                      args.receiver, args.out)
+            _emit(summary)
+            return code
     finally:
         wh.close()
     return 0

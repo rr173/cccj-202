@@ -1,0 +1,8 @@
+{"epc":"urn:example:epc:e1","kind":"epc","location":"urn:example:loc:C"}
+{"epc":"urn:example:epc:e2","kind":"epc","location":"urn:example:loc:A"}
+{"base_unit":"KGM","class":"urn:example:class:W","dimension":"mass","kind":"quantity","location":"urn:example:loc:A","quantity":"0"}
+{"base_unit":"KGM","class":"urn:example:class:X","dimension":"mass","kind":"quantity","location":"urn:example:loc:A","quantity":"10"}
+{"base_unit":"KGM","class":"urn:example:class:Y","dimension":"mass","kind":"quantity","location":"urn:example:loc:A","quantity":"8"}
+{"base_unit":"KGM","class":"urn:example:class:Z","dimension":"mass","kind":"quantity","location":"urn:example:loc:A","quantity":"10"}
+{"base_unit":"KGM","class":"urn:example:class:W","dimension":"mass","kind":"quantity","location":"urn:example:loc:B","quantity":"6"}
+{"base_unit":"KGM","class":"urn:example:class:W","dimension":"mass","kind":"quantity","location":"urn:example:loc:C","quantity":"5"}

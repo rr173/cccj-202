@@ -1,0 +1,14 @@
+{"group":"2026-01-01T10:00:00+00:00#1","handover":"H1","reasons":[{"code":"group_blocked","group":"2026-01-01T10:00:00+00:00#1"}],"status":"failed"}
+{"group":null,"handover":"H10","reasons":[{"code":"evidence_missing","event_ids":["urn:uuid:drill-r10"],"side":"receiver"}],"status":"failed"}
+{"group":"2026-01-01T13:00:00+00:00#1","handover":"H11","reasons":[],"status":"posted"}
+{"group":"2026-01-01T13:00:00+00:00#2","handover":"H12","reasons":[],"status":"posted"}
+{"group":"2026-01-01T13:00:00+00:00#3","handover":"H13","reasons":[{"code":"group_blocked","group":"2026-01-01T13:00:00+00:00#3"}],"status":"failed"}
+{"group":"2026-01-01T13:00:00+00:00#3","handover":"H14","reasons":[{"code":"group_blocked","group":"2026-01-01T13:00:00+00:00#3"}],"status":"failed"}
+{"group":"2026-01-01T10:00:00+00:00#1","handover":"H2","reasons":[{"code":"group_blocked","group":"2026-01-01T10:00:00+00:00#1"}],"status":"failed"}
+{"group":"2026-01-01T10:00:00+00:00#1","handover":"H3","reasons":[{"code":"group_blocked","group":"2026-01-01T10:00:00+00:00#1"}],"status":"failed"}
+{"group":"2026-01-01T10:00:00+00:00#2","handover":"H4","reasons":[],"status":"posted"}
+{"group":"2026-01-01T11:00:00+00:00#1","handover":"H5","reasons":[{"code":"group_blocked","group":"2026-01-01T11:00:00+00:00#1"}],"status":"failed"}
+{"group":"2026-01-01T11:00:00+00:00#1","handover":"H6","reasons":[{"code":"group_blocked","group":"2026-01-01T11:00:00+00:00#1"}],"status":"failed"}
+{"group":null,"handover":"H7","reasons":[{"claims":[{"also_claimed_by":[{"handover":"H8","side":"sender"}],"event_id":"urn:uuid:drill-s7"}],"code":"scan_reused"}],"status":"failed"}
+{"group":null,"handover":"H8","reasons":[{"claims":[{"also_claimed_by":[{"handover":"H7","side":"sender"}],"event_id":"urn:uuid:drill-s7"}],"code":"scan_reused"}],"status":"failed"}
+{"group":null,"handover":"H9","reasons":[{"code":"missing_receiver"}],"status":"failed"}

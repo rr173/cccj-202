@@ -1,0 +1,13 @@
+{"handover": "H1", "from": "urn:example:loc:A", "to": "urn:example:loc:B", "effective": "2026-01-01T10:00:00+00:00", "scans": ["urn:uuid:drill-r1"]}
+{"handover": "H2", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T10:00:00+00:00", "scans": ["urn:uuid:drill-r2"]}
+{"handover": "H3", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T10:00:00+00:00", "scans": ["urn:uuid:drill-r3"]}
+{"handover": "H4", "from": "urn:example:loc:C", "to": "urn:example:loc:B", "effective": "2026-01-01T10:00:00+00:00", "scans": ["urn:uuid:drill-r4"]}
+{"handover": "H5", "from": "urn:example:loc:A", "to": "urn:example:loc:B", "effective": "2026-01-01T11:00:00+00:00", "scans": ["urn:uuid:drill-r5"]}
+{"handover": "H7", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-r7"]}
+{"handover": "H8", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-r8"]}
+{"handover": "H10", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-r10"]}
+{"handover": "H11", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-r11"]}
+{"handover": "H12", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-r12"]}
+{"handover": "H13", "from": "urn:example:loc:A", "to": "urn:example:loc:C", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-r13"]}
+{"handover": "H14", "from": "urn:example:loc:A", "to": "urn:example:loc:B", "effective": "2026-01-01T13:00:00+00:00", "scans": ["urn:uuid:drill-r14"]}
+{"handover": "H6", "from": "urn:example:loc:B", "to": "urn:example:loc:C", "effective": "2026-01-01T12:00:00+00:00", "scans": ["urn:uuid:drill-r6"]}
