@@ -1,0 +1,123 @@
+{
+  "window": {
+    "start": "2026-01-01T23:50:00+00:00",
+    "end": "2026-01-02T00:10:00+00:00",
+    "duration_minutes": 20
+  },
+  "note": "Hand-written expectations. Minutes are relative to window start; coverage rows are additionally split at UTC midnight (00:00). Owners use the last URI label; null means unknown ownership.",
+  "coverage": {
+    "urn:example:epc:E": [
+      [0, 2, "not_sampled", null, "甲"],
+      [2, 5, "over_limit", 9000, "甲"],
+      [5, 7, "over_limit", 9000, "乙"],
+      [7, 9, "expired", null, "乙"],
+      [9, 12, "over_limit", 9000, "乙"],
+      [12, 13, "sample_conflict", null, "乙"],
+      [13, 20, "normal", 4000, "乙"]
+    ],
+    "urn:example:epc:F": [
+      [0, 2, "not_sampled", null, "甲"],
+      [2, 7, "over_limit", 9000, "甲"],
+      [7, 9, "expired", null, "甲"],
+      [9, 12, "over_limit", 9000, "甲"],
+      [12, 17, "sample_conflict", null, "甲"],
+      [17, 20, "normal", 4000, "甲"]
+    ],
+    "urn:example:epc:G": [
+      [0, 7, "normal", 5000, "G2"],
+      [7, 12, "expired", null, "G2"],
+      [12, 20, "normal", 5000, "G2"]
+    ],
+    "urn:example:epc:H": [
+      [0, 7, "not_sampled", null, "甲"],
+      [7, 8, "normal", 5000, "甲"],
+      [8, 13, "over_limit", 9000, "甲"],
+      [13, 20, "expired", null, "甲"]
+    ],
+    "urn:example:epc:H2": [
+      [0, 7, "not_sampled", null, "甲"],
+      [7, 8, "normal", 5000, "甲"],
+      [8, 10, "not_sampled", null, "甲"],
+      [10, 15, "normal", 5000, "甲"],
+      [15, 20, "expired", null, "甲"]
+    ],
+    "urn:example:epc:J": [
+      [0, 20, "not_installed", null, "J1"]
+    ],
+    "urn:example:epc:K": [
+      [0, 20, "normal", 4000, "甲"]
+    ],
+    "urn:example:epc:N": [
+      [0, 3, "not_installed", null, "甲"],
+      [3, 6, "install_conflict", null, "甲"],
+      [6, 7, "not_sampled", null, "甲"],
+      [7, 10, "normal", 4000, "甲"],
+      [10, 20, "not_installed", null, "甲"]
+    ],
+    "urn:example:epc:Q": [
+      [0, 4, "not_installed", null, "甲"],
+      [4, 20, "chain_unknown", null, "甲"]
+    ],
+    "urn:example:epc:R": [
+      [0, 20, "not_installed", null, "甲"]
+    ]
+  },
+  "alarms": [
+    {
+      "epc": "urn:example:epc:E",
+      "start_minute": 2,
+      "end_minute": 7,
+      "duration_minutes": 5,
+      "by_owner": {"甲": 3, "乙": 2},
+      "by_owner_day": [
+        {"owner": "甲", "day": "2026-01-01", "minutes": 3},
+        {"owner": "乙", "day": "2026-01-01", "minutes": 2}
+      ]
+    },
+    {
+      "epc": "urn:example:epc:F",
+      "start_minute": 2,
+      "end_minute": 7,
+      "duration_minutes": 5,
+      "by_owner": {"甲": 5},
+      "by_owner_day": [
+        {"owner": "甲", "day": "2026-01-01", "minutes": 5}
+      ]
+    },
+    {
+      "epc": "urn:example:epc:H",
+      "start_minute": 8,
+      "end_minute": 13,
+      "duration_minutes": 5,
+      "by_owner": {"甲": 5},
+      "by_owner_day": [
+        {"owner": "甲", "day": "2026-01-01", "minutes": 2},
+        {"owner": "甲", "day": "2026-01-02", "minutes": 3}
+      ]
+    }
+  ],
+  "not_alarms": {
+    "urn:example:epc:E": "the 9-12 minute over-limit run is only 3 minutes (< 4-minute threshold); expiry at 7 and conflict at 12 already split it from the earlier run",
+    "urn:example:epc:F": "same 3-minute post-midnight run must not alarm",
+    "urn:example:epc:H": "expiry at minute 13 closes the run; no further over-limit reading follows"
+  },
+  "daily": {
+    "urn:example:epc:E": {
+      "2026-01-01": {"甲": {"not_sampled": 2, "over_limit": 3},
+                     "乙": {"over_limit": 3, "expired": 2}},
+      "2026-01-02": {"乙": {"over_limit": 2, "sample_conflict": 1, "normal": 7}}
+    }
+  },
+  "summary_counts": {
+    "items": 10,
+    "installations": 9,
+    "sample_conflict_instants": 1,
+    "samples_outside_installation": 1,
+    "alarms": 3
+  },
+  "failures": {
+    "bad-overlap": "installation_overlap",
+    "bad-batch": "batch_mismatch"
+  },
+  "identical_runs": ["run1", "run2"]
+}

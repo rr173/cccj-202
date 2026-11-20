@@ -58,6 +58,26 @@ def main(argv=None):
     p.add_argument("--receiver", required=True, help="receiver-side documents JSONL")
     p.add_argument("--out", required=True, help="output directory for settlement results")
 
+    p = sub.add_parser("coldchain")
+    p.add_argument("--batch", required=True,
+                   help="published receiving batch number, or 'latest'")
+    p.add_argument("--window-start", required=True,
+                   help="inspection window start (inclusive), ISO 8601 with offset")
+    p.add_argument("--window-end", required=True,
+                   help="inspection window end (exclusive), ISO 8601 with offset")
+    p.add_argument("--opening", required=True,
+                   help="same opening inventory JSONL used by the settle run")
+    p.add_argument("--settle-summary", required=True,
+                   help="summary.json of the settle run providing ownership")
+    p.add_argument("--ledger", required=True,
+                   help="ledger.jsonl of that settle run (posted named moves)")
+    p.add_argument("--items", required=True,
+                   help="inspected EPCs: epc, limit_mc, alarm_seconds")
+    p.add_argument("--installations", required=True,
+                   help="probe installations JSONL")
+    p.add_argument("--samples", required=True, help="probe samples JSONL")
+    p.add_argument("--out", required=True, help="output directory for the ledger")
+
     args = ap.parse_args(argv)
 
     if args.cmd == "init":
@@ -90,6 +110,13 @@ def main(argv=None):
         elif args.cmd == "settle":
             summary, code = wh.settle(args.batch, args.opening, args.sender,
                                       args.receiver, args.out)
+            _emit(summary)
+            return code
+        elif args.cmd == "coldchain":
+            summary, code = wh.coldchain(
+                args.batch, args.window_start, args.window_end, args.opening,
+                args.settle_summary, args.ledger, args.items,
+                args.installations, args.samples, args.out)
             _emit(summary)
             return code
     finally:

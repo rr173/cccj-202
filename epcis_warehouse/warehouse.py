@@ -115,3 +115,18 @@ class Warehouse:
         from . import settle as S
         return S.run_settlement(self.store, self.units, batch,
                                 opening_path, sender_path, receiver_path, out_dir)
+
+    # ---------------------------------------------------------- cold chain
+    def coldchain(self, batch, window_start, window_end, opening_path,
+                  summary_path, ledger_path, items_path, installations_path,
+                  samples_path, out_dir):
+        """Build one offline cold-chain exposure ledger (read-only).
+
+        Returns (summary_dict, exit_code); 2 means a fatal input-contract
+        error and no coverage/daily/alarm files are delivered.
+        """
+        from . import coldchain as C
+        return C.run_coldchain(
+            self.store, self.units, batch, window_start, window_end,
+            opening_path, summary_path, ledger_path, items_path,
+            installations_path, samples_path, out_dir)

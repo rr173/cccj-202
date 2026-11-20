@@ -123,6 +123,11 @@ python3 -m epcis_warehouse.cli --root WH review [--batch N]          # 批次/�
 python3 -m epcis_warehouse.cli --root WH evidence --digest SHA256    # 原文 + 展开 IRI
 python3 -m epcis_warehouse.cli --root WH settle --batch 2 \          # 离线交接结账（只读事件仓）
     --opening opening.jsonl --sender sender.jsonl --receiver receiver.jsonl --out settle-out/
+python3 -m epcis_warehouse.cli --root WH coldchain --batch 2 \       # 离线冷链暴露台账（只读事件仓）
+    --window-start 2026-01-01T23:50:00+00:00 --window-end 2026-01-02T00:10:00+00:00 \
+    --opening opening.jsonl --settle-summary settle-out/summary.json \
+    --ledger settle-out/ledger.jsonl --items items.jsonl \
+    --installations installations.jsonl --samples samples.jsonl --out cold-out/
 ```
 
 查询结果中的 `events`（事件→内容摘要）与 `evidence`（摘要→原文/展开文件路径）即共享证据表示：
@@ -182,6 +187,57 @@ python3 scripts/settle_scale.py --lines 20000 --big 8000   # 小规模冒烟
 全部过账、期末余额抽查、重复结账输出逐字节一致。大数据与大结果只落在临时
 目录，不进入版本库。
 
+## 离线冷链暴露台账（coldchain）
+
+质检员圈定一个已发布批次和一个带时区的半开巡检窗口 `[起,止)`，再给三份名单
+（巡检 EPC 及各自温度上限/连续超温门槛、探头安装容器与区间、探头采样读数），
+`coldchain` 结合同一次 `settle` 的期初库存、成功摘要和 `ledger.jsonl`，离线
+交付三份可互相核账的结果（格式见 [docs/coldchain.md](docs/coldchain.md)）：
+
+* **逐件温度覆盖明细** `coverage.jsonl`：整个窗口切成互不重叠、无空洞的半开段，
+  给出起止、归属、温度或未知原因与可回查证据；只在实际采用的归属/判定/证据变化
+  处和 UTC 午夜断开。
+* **归属日账** `daily.jsonl`：按 EPC × UTC 日期 × 归属汇总正常、超温与六种未知
+  原因的时长，未知归属单列；三类时间加总恒等于窗口（程序强制校验）。
+* **连续超温告警** `alarms.jsonl`：连续超温的极大区间，达到该件门槛才交付，按
+  归属（含未知归属）拆分超温时长；换探头、换归属、跨午夜不断开，任何正时长的
+  正常/未知段才断开。
+
+关键边界：归属只认期初与过账 `named_moves`（未过账单据、期末余额、包装持有者、
+扫描时刻都不能补归属，期初未登记的货归属记未知）；读数只在当次安装内有效，重装
+不沿用旧读数，恰在卸下时采的样不属于旧安装；近处探头缺读数/过期/冲突不退回远处
+好读数；包装链歧义、成环或被冲突包装事件阻断时整条温度归属未知；同瞬间异值读数
+显式保留冲突，绝不挑值。合同错误（格式错误、归属流水自相矛盾、批次不符、安装段
+重叠等）只交付 `status: failed` 的摘要，退出码 2。
+
+### 冷链演练（可手核的 20 分钟时间条）
+
+```bash
+python3 drills/coldchain/gen_drill.py        # 建仓、settle、两次台账构建与两个失败用例
+python3 drills/coldchain/verify_drill.py     # 独立核验：手写逐段预期 vs 实际输出文件
+```
+
+演练严格复刻题面时间条（UTC 23:50 起 20 分钟，跨午夜）：货 E 内箱探头的尚无读数
+（0–2 分）、过期（7–9 分）、采样冲突（12–13 分）都不能用托盘 4°C 填上；仅
+2–7 分的连续超温达到 4 分钟门槛，甲负责 3 分钟、乙 2 分钟；9–12 分跨午夜的超温
+只有 3 分钟不告警，乙在午夜前后分别计入 1、2 分钟。另有留在内箱的对照 EPC、窗口
+前存量与仍有效读数、同刻换装与采样、断开后同探头重装、未过账仍归原地、单容器多
+探头冲突、包装双父链未知等场景；`expected.json` 是逐段手写预期，核验脚本只读
+输出文件、不调用任何判定函数。
+
+### 冷链规模复现
+
+```bash
+python3 scripts/coldchain_scale.py                 # 5 万巡检 EPC、30 万探头样本
+python3 scripts/coldchain_scale.py --epcs 2000 --samples 30000   # 冒烟
+```
+
+构建台账在独立进程运行并用 `wait4` 测峰值 RSS，限额 256 MiB（Linux，不含造数与
+建仓）。样本流式进入临时 SQLite，即使一个时刻有大量样本也不把整批读入内存；只
+展开影响巡检货的时间变化，逐货只扫其包装链上的探头，不构造 EPC 与全局采样时间的
+笛卡尔积。脚本同时核验：逐 EPC 无空洞覆盖、选定 EPC 的覆盖与告警归属拆分、无关
+探头更新不出现在任何明细里、重复构建逐字节一致。
+
 ## 重开、复制与证据复查
 
 ```bash
@@ -213,8 +269,10 @@ python3 scripts/memory_check.py --events 30000 --limit-mb 384
 ```bash
 python3 drills/main/gen_drill.py && python3 drills/main/verify_drill.py   # 主演练 15 项
 python3 drills/settle/gen_drill.py && python3 drills/settle/verify_drill.py  # 交接结账演练
+python3 drills/coldchain/gen_drill.py && python3 drills/coldchain/verify_drill.py  # 冷链台账演练
 python3 tests/run_tests.py                                               # 14 组场景
 python3 tests/run_settle_tests.py                                        # 13 组结账场景
+python3 tests/run_coldchain_tests.py                                     # 冷链台账场景
 bash scripts/check_all.sh                                                # 全部
 ```
 
@@ -227,12 +285,13 @@ eventID 冲突暂停、未知 context、空成员 DELETE 等 unsupported、批�
 ## 目录结构
 
 ```
-epcis_warehouse/     主包（jsonld_offline / parse / store / state / query / ingest / warehouse / settle / cli）
+epcis_warehouse/     主包（jsonld_offline / parse / store / state / query / ingest / warehouse / settle / coldchain / cli）
   contexts/          打包的固定 context + 白名单
 vendor/              PyLD 及依赖（sha256 校验的 wheel 解包）
-docs/                settlement.md（结账输入格式与语义）+ examples/（最小输入示例）
+docs/                settlement.md、coldchain.md（输入格式与语义）+ examples/（最小输入示例）
 drills/main/         主演练：gen_drill.py、expected.json（手写预期）、verify_drill.py（独立核验）
 drills/settle/       交接结账演练：gen_drill.py、expected.json（手写对账表）、verify_drill.py
-tests/               run_tests.py（仓库场景）、run_settle_tests.py（结账场景）
-scripts/             memory_check.py、settle_scale.py（规模复现）、check_all.sh
+drills/coldchain/    冷链台账演练：gen_drill.py、expected.json（手写逐段预期）、verify_drill.py
+tests/               run_tests.py（仓库场景）、run_settle_tests.py（结账场景）、run_coldchain_tests.py（冷链场景）
+scripts/             memory_check.py、settle_scale.py、coldchain_scale.py（规模复现）、check_all.sh
 ```

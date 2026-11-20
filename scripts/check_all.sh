@@ -18,10 +18,20 @@ python3 tests/run_tests.py
 echo "=== settlement scenario tests ==="
 python3 tests/run_settle_tests.py
 
+echo "=== cold-chain drill ==="
+python3 drills/coldchain/gen_drill.py
+python3 drills/coldchain/verify_drill.py
+
+echo "=== cold-chain scenario tests ==="
+python3 tests/run_coldchain_tests.py
+
 echo "=== memory smoke (5k events) ==="
 python3 scripts/memory_check.py --events 5000 >/dev/null && echo "memory check OK"
 
 echo "=== settle scale smoke (20k lines) ==="
 python3 scripts/settle_scale.py --lines 20000 --big 8000 >/dev/null && echo "settle scale OK"
+
+echo "=== cold-chain scale smoke (2k EPCs, 30k samples) ==="
+python3 scripts/coldchain_scale.py --epcs 2000 --samples 30000 >/dev/null && echo "cold-chain scale OK"
 
 echo "ALL CHECKS PASSED"
