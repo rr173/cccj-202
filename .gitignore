@@ -10,3 +10,7 @@ settle-out/
 
 # Drill work directories hold generated warehouses, inputs and outputs.
 drills/*/work/
+
+# Disclosure scale-reproduction artifacts are generated at runtime into
+# temp dirs and must never be committed (see scripts/disclosure_scale.py).
+epcis-disc-scale-*/

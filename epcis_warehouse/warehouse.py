@@ -105,6 +105,26 @@ class Warehouse:
     def evidence_doc(self, digest):
         return self.evidence.get(digest)
 
+    # ---------------------------------------------------------- disclosure
+    def checkpoint_build(self, warehouse_id, batch, out_path=None):
+        """Build (or reuse) the selective-disclosure checkpoint for one
+        published batch, plus its reusable on-disk index.  Read-only for
+        the warehouse itself; artifacts land in <root>/disclosure/.
+        """
+        from . import disclosure as D
+        return D.build_checkpoint(self.store, warehouse_id,
+                                  self._batch(batch), out_path)
+
+    def page_export(self, checkpoint_id, lo, hi, out_path):
+        """Export one disclosure page from a checkpoint's disk index.
+
+        Reads only the index under <root>/disclosure/<checkpoint-id>/,
+        never the event warehouse itself.
+        """
+        from . import disclosure as D
+        return D.export_page(os.path.join(self.root, "disclosure"),
+                             checkpoint_id, lo, hi, out_path)
+
     # ---------------------------------------------------------- settlement
     def settle(self, batch, opening_path, sender_path, receiver_path, out_dir):
         """Close one round of handover documents against a published batch.

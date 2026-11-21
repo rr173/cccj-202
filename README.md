@@ -3,10 +3,13 @@
 对一批封闭的 EPCIS 2.0 JSON-LD 事件和一张声明单位表做离线加工，输出可按
 **业务时间（eventTime）** 与 **接收批次（receiving batch）** 两个维度复查的追溯关系；
 并在同一事件仓上提供**离线交接结账**：把发、收双方各自填报的交接单对照指定批次
-里已收到的扫描逐条核实，交付可入账的流水、未入账的单据和结账后的余额。
+里已收到的扫描逐条核实，交付可入账的流水、未入账的单据和结账后的余额；以及
+**离线选择性披露**：把某批次的编号清册承诺进一份可单独交付的检查点，按编号区间
+分页出具凭证，稽核方不接触事件仓即可验页、查缺口、交付逐编号清册。
 
 明确不做的事（profile 边界）：不从包装关系推断物料消耗；不做原料配方、比例分摊、
-召回优化或数量预测；交接结账不把包装成员或生产转换当作交接。
+召回优化或数量预测；交接结账不把包装成员或生产转换当作交接；选择性披露不为真实
+世界事件背书、不做密钥分发。
 
 ## 运行环境
 
@@ -128,6 +131,15 @@ python3 -m epcis_warehouse.cli --root WH coldchain --batch 2 \       # 离线冷
     --opening opening.jsonl --settle-summary settle-out/summary.json \
     --ledger settle-out/ledger.jsonl --items items.jsonl \
     --installations installations.jsonl --samples samples.jsonl --out cold-out/
+# 离线选择性披露（仓管方）
+python3 -m epcis_warehouse.cli --root WH checkpoint build --warehouse-id 仓标识 --batch 1 --out cp.json
+python3 -m epcis_warehouse.cli --root WH page export --checkpoint 标识 \
+    [--lo-id E [--lo-digest D]] [--hi-id E [--hi-digest D]] --out page.jsonl
+# 离线选择性披露（稽核方，不需要 --root；检查点经可信渠道获得）
+python3 -m epcis_warehouse.cli audit init --workspace WS --checkpoint cp.json [--lo-id E ...] [--hi-id E ...]
+python3 -m epcis_warehouse.cli audit receive --workspace WS --page page.jsonl
+python3 -m epcis_warehouse.cli audit gaps --workspace WS
+python3 -m epcis_warehouse.cli audit finalize --workspace WS --out audit-out/
 ```
 
 查询结果中的 `events`（事件→内容摘要）与 `evidence`（摘要→原文/展开文件路径）即共享证据表示：
@@ -238,6 +250,75 @@ python3 scripts/coldchain_scale.py --epcs 2000 --samples 30000   # 冒烟
 笛卡尔积。脚本同时核验：逐 EPC 无空洞覆盖、选定 EPC 的覆盖与告警归属拆分、无关
 探头更新不出现在任何明细里、重复构建逐字节一致。
 
+## 离线选择性披露（disclosure / audit）
+
+外部稽核方要核对某段事件编号是否报齐，又不接触事件仓。仓管方先对
+**仓标识 + 一个已发布接收批次**构建**检查点**（对有序清册的 Merkle
+承诺，同时生成可复用磁盘索引），经**单独的可信渠道**交给稽核方；再把
+同一次稽核所需的数据按编号区间分成**凭证页**陆续导出。稽核方在本地
+收件工作区里逐页验证、查看缺口，只有验过的页严丝合缝覆盖整个请求
+区间才交付最终清册。格式与语义规范（可据以独立实现）见
+[docs/disclosure.md](docs/disclosure.md)。
+
+* **清册**：该批次可见、带非空 `eventID` 的记录，每个
+  `(event_id, content_digest)` 一个变体；完全重传不加行，同编号不同
+  变体都保留（含无效/不支持）。披露行只有编号、摘要、状态、首次接收
+  批次、业务时间（UTC 微秒或空）——不含原文、展开体、文件名、地点。
+  无编号记录不进清册；空页只证明清册内无条目，不代表来件没有未识别
+  记录。清册的多变体计数不改变仓库原有冲突判定。
+* **检查点标识**承诺仓标识、批次、格式版本、总变体数与有序清册根；
+  与仓内行号、插入顺序、重传出处无关；已发布检查点不被后续批次覆盖。
+* **区间分页**：编号按 UTF-8 原始字节排序（不改大小写、不归一化）；
+  边界可以是某编号所有变体之前，或该编号的指定摘要处（按解码字节
+  比较），不必对应真实行——同编号上万变体也能拆页。每页自带半开子
+  区间，命中为零的非零宽页也是有效页。
+* **验页**不仅验每行属于检查点，还验证区间无遗漏（首尾、内侧缺行、
+  零命中、空检查点）；发送方给的计数或边界不作为证据。页只含区间内
+  的行，外加至多两个邻接键（编号+摘要及其行数据散列）与 O(log N) 个
+  树节点散列。
+* **收件工作区**可关闭重开，绑定一个检查点和一个请求范围；页可乱序，
+  同区间重收幂等，正宽重叠拒收，邻接允许；旧批次页、越界页、格式或
+  凭证错误、截断、尾随数据一律拒收且不污染进度。完成判据是区间覆盖
+  而不是记录数；交付 `inventory.jsonl`（逐变体）、`by_event.jsonl`
+  （逐编号汇总，跨页同号只出一条）、`summary.json`（最后落盘）。
+* **信任边界**：检查点必须经可信渠道预先交付，不接受从披露页自取的
+  根；本功能不为真实世界事件背书、不做密钥分发、不从未获信任的检查
+  点推导结论。
+
+### 披露演练
+
+```bash
+python3 drills/disclosure/gen_drill.py        # 两批接收、检查点、分页、乱序收件、篡改用例
+python3 drills/disclosure/verify_drill.py     # 独立核验：手写预期 + 从规范重写的验页器
+```
+
+第一批含 `m-07` 的完全重传、`m-08` 的一个有效变体和一个不同摘要的
+非有效变体、边界事件 `m-20` 与一个无编号记录；第二批再收一个
+`m-08` 变体。对第一批请求 `[m-07, m-20)`：`m-08` 两个变体拆到不同
+页，`[m-10, m-20)` 留作无命中页；乱序收两张非空页并重收一张时仍
+报告空区间未覆盖，补齐后清册为 `m-07` 一条、`m-08` 两条、不含
+`m-20`。篡改用例（少交一条真实记录、页端扩大越过未披露变体、第二
+批的页、末尾截断、重叠页、尾随数据、改摘要）全部拒收且不污染进度；
+另有空检查点（仓内只有无编号记录）交付空清册的用例。
+`verify_drill.py` 内含按 docs/disclosure.md 独立实现的验页器，并以
+仓库既有 `event` 命令为对照锚定摘要，不把被测导出器的清单当预期。
+
+### 披露规模复现
+
+```bash
+python3 scripts/disclosure_scale.py                 # 100 万变体，单号 20 万变体
+python3 scripts/disclosure_scale.py --variants 40000 --big 8000   # 冒烟
+```
+
+运行时生成 100 万变体（一个事件号占 20 万），保留稠密段、内部空段与
+只命中 3 条记录的窄页。检查点构建、单页导出、收页、完成稽核各自在
+独立进程中以 `wait4` 测峰值 RSS，均不超过 192 MiB（Linux，不含造数
+与建仓）。窄页导出用命令自带的 `index_reads` 统计证明只读了
+O(命中数 + log N) 行（不扫整份清册），页凭证只有 O(log N) 个散列与
+至多两个邻接键；50k 行大页与跨页单号汇总都流式处理；两种分页方案
+加乱序收件交付逐字节一致的最终清册。大数据与稽核档案只落在临时
+目录，不进入版本库。
+
 ## 重开、复制与证据复查
 
 ```bash
@@ -270,9 +351,11 @@ python3 scripts/memory_check.py --events 30000 --limit-mb 384
 python3 drills/main/gen_drill.py && python3 drills/main/verify_drill.py   # 主演练 15 项
 python3 drills/settle/gen_drill.py && python3 drills/settle/verify_drill.py  # 交接结账演练
 python3 drills/coldchain/gen_drill.py && python3 drills/coldchain/verify_drill.py  # 冷链台账演练
+python3 drills/disclosure/gen_drill.py && python3 drills/disclosure/verify_drill.py  # 选择性披露演练
 python3 tests/run_tests.py                                               # 14 组场景
 python3 tests/run_settle_tests.py                                        # 13 组结账场景
 python3 tests/run_coldchain_tests.py                                     # 冷链台账场景
+python3 tests/run_disclosure_tests.py                                    # 选择性披露场景
 bash scripts/check_all.sh                                                # 全部
 ```
 
@@ -285,13 +368,14 @@ eventID 冲突暂停、未知 context、空成员 DELETE 等 unsupported、批�
 ## 目录结构
 
 ```
-epcis_warehouse/     主包（jsonld_offline / parse / store / state / query / ingest / warehouse / settle / coldchain / cli）
+epcis_warehouse/     主包（jsonld_offline / parse / store / state / query / ingest / warehouse / settle / coldchain / disclosure / audit / cli）
   contexts/          打包的固定 context + 白名单
 vendor/              PyLD 及依赖（sha256 校验的 wheel 解包）
-docs/                settlement.md、coldchain.md（输入格式与语义）+ examples/（最小输入示例）
+docs/                settlement.md、coldchain.md、disclosure.md（披露格式规范）+ examples/（最小输入示例）
 drills/main/         主演练：gen_drill.py、expected.json（手写预期）、verify_drill.py（独立核验）
 drills/settle/       交接结账演练：gen_drill.py、expected.json（手写对账表）、verify_drill.py
 drills/coldchain/    冷链台账演练：gen_drill.py、expected.json（手写逐段预期）、verify_drill.py
-tests/               run_tests.py（仓库场景）、run_settle_tests.py（结账场景）、run_coldchain_tests.py（冷链场景）
-scripts/             memory_check.py、settle_scale.py、coldchain_scale.py（规模复现）、check_all.sh
+drills/disclosure/   选择性披露演练：gen_drill.py、expected.json（手写预期）、verify_drill.py（含从规范重写的验页器）
+tests/               run_tests.py、run_settle_tests.py、run_coldchain_tests.py、run_disclosure_tests.py
+scripts/             memory_check.py、settle_scale.py、coldchain_scale.py、disclosure_scale.py（规模复现）、check_all.sh
 ```

@@ -1,0 +1,34 @@
+{
+  "comment": "Hand-written expectations for the selective-disclosure drill. Digests are NOT written here; verify_drill.py takes them from the warehouse `event` CLI (a pre-existing capability) and matches them against the disclosure outputs. Everything else -- ids, statuses, business times, batches, intervals, gap sequences, rejection list -- is written by hand.",
+  "warehouse_id": "urn:example:warehouse:drill-1",
+  "empty_warehouse_id": "urn:example:warehouse:drill-empty",
+  "request": {"lo": {"event_id": "m-07"}, "hi": {"event_id": "m-20"}},
+  "checkpoints": {
+    "batch1": {"batch": 1, "variants": 4},
+    "batch2": {"batch": 2, "variants": 5},
+    "empty": {"batch": 1, "variants": 0}
+  },
+  "pages": {
+    "p1": {"lo": {"event_id": "m-07"}, "hi_at_digest_of": "m-08", "rows": 2},
+    "p2": {"lo_at_digest_of": "m-08", "hi": {"event_id": "m-10"}, "rows": 1},
+    "p3": {"lo": {"event_id": "m-10"}, "hi": {"event_id": "m-20"}, "rows": 0}
+  },
+  "inventory": [
+    {"event_id": "m-07", "status": "ok", "first_batch": 1,
+     "event_time": "2026-01-01T10:00:00+00:00"},
+    {"event_id": "m-08", "status": "ok", "first_batch": 1,
+     "event_time": "2026-01-01T10:01:00+00:00"},
+    {"event_id": "m-08", "status": "invalid", "first_batch": 1,
+     "event_time": null}
+  ],
+  "by_event": [
+    {"event_id": "m-07", "variants": 1, "multi_variant": false},
+    {"event_id": "m-08", "variants": 2, "multi_variant": true}
+  ],
+  "summary": {"variants": 3, "event_ids": 2, "multi_variant_ids": 1},
+  "absent_from_inventory": ["m-20"],
+  "gap_after_two_pages": [{"lo": {"event_id": "m-10"}, "hi": {"event_id": "m-20"}}],
+  "rejected_pages": ["t1.jsonl", "t2.jsonl", "t4.jsonl", "t5.jsonl",
+                     "t7.jsonl", "p2b.jsonl", "pbig.jsonl"],
+  "empty_audit": {"variants": 0, "event_ids": 0, "multi_variant_ids": 0}
+}
